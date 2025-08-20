@@ -1,10 +1,15 @@
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
 from typing import List
-from app.core.ai_agent import get_response_from_ai_agents
+from app.core.ai_agent import get_Response_from_ai_agents
 from app.config.settings import settings
 from app.common.logger import get_logger
 from app.common.custom_exception import CustomException
+
+import traceback
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 logger = get_logger(__name__)
 
