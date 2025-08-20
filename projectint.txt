@@ -146,3 +146,126 @@ The project is divided into videos/steps for building incrementally:
 
 ### Final Notes
 This setup creates a production-grade AI agent app: Scalable, maintainable, and deployable. Focus on code quality (SonarQube) and automation (Jenkins) to avoid common pitfalls. If you follow this structure during revision, the flow should be crystal clear—start from setup, build core AI, add front/back ends, then automate deployment. If doubts arise, refer back to specific sections like SonarQube examples or pipeline stages for clarity.
+
+8.91
+
+
+### Project Setup Video Summary
+
+This is a detailed step-by-step summary of the video transcript for setting up the project structure, API structure, and URL structure for a "Multi AI Agent" project. I've organized it into sections for easy revision, ensuring no details are skipped. The project uses Python, VS Code, virtual environments, and various libraries. References to GitHub are for copying code/files as mentioned.
+
+#### 1. Creating the Project Folder and Opening in VS Code
+- Open any folder on your local PC.
+- Create a new folder named "multi AI agent" (based on the project theme).
+- Double-click to open the folder.
+- Right-click inside the folder and select "Open in Terminal."
+- In the terminal, type `code .` (full stop) and press Enter. This opens the folder in VS Code.
+
+#### 2. Creating and Activating the Virtual Environment
+- In VS Code, go to the top bar, click "Terminal" > "New Terminal," and select "Command Prompt" (ensure it's Command Prompt, not PowerShell).
+- In the Command Prompt terminal, type: `python -m venv env` and press Enter.
+  - This creates a virtual environment named "env" (visible on the left side after 10-15 seconds).
+- Activate the virtual environment: Type `env\Scripts\activate` and press Enter.
+  - You'll see "(env)" in the terminal prompt, confirming activation.
+
+#### 3. Creating requirements.txt File
+- Close the terminal if needed.
+- In VS Code, create a new file named `requirements.txt`.
+- List the following libraries inside it (one per line):
+  - `langchain_groq` (for Groq API integration).
+  - `langchain_community` (community library for LangChain).
+  - `python-dotenv` (for handling environment variables; use case explained later).
+  - `uvicorn` (for API setup in the backend).
+  - `fastapi` (for creating the API structure).
+  - `pydantic` (for data validation and settings).
+  - `streamlit` (for creating the UI/frontend).
+  - `langgraph` (for creating AI agents in a multi-agent project).
+- Note: You can copy this file from the GitHub link provided in the code section instead of writing it manually.
+
+#### 4. Creating setup.py File
+- Create a new file named `setup.py`.
+- Copy the code for `setup.py` from the GitHub code section (a separate video explains this file in detail).
+- Modify the project name in the code (e.g., to "multi AI agent project" or as desired).
+- This file handles project dependencies and installation.
+
+#### 5. Installing Dependencies
+- Open the terminal (use the previous Command Prompt one).
+- Type `pip install -e .` (hyphen e full stop) and press Enter.
+  - This triggers `setup.py`, which installs all libraries from `requirements.txt`.
+  - Wait for installation to complete (it installs project dependencies).
+
+#### 6. Project Structure Setup
+- Inside the main project folder ("multi AI agent"), create a subfolder named `app`. All project components (backend, UI, etc.) will be inside this.
+- Inside `app`, create the following subfolders:
+  - `backend`: For API setup and backend logic.
+  - `frontend`: For UI (Streamlit code).
+  - `common`: For logging files and custom exception files (watch separate videos for explanations).
+  - `core`: For the main logic of the multi-agent system.
+  - `config`: For API setup, loading APIs, etc.
+- Inside `app`, create a file named `main.py`: This is the main app code that connects frontend, backend, etc. Running this starts the app.
+- Inside `app`, create an `__init__.py` file (double hyphen init double hyphen dot py).
+  - This makes the app folder a package, allowing imports between directories (importance explained in setup.py video).
+- Re-run `pip install -e .` after creating `__init__.py` to recognize the project as a package.
+
+#### 7. Setting Up the `common` Folder
+- Inside `common`, create an `__init__.py` file (to treat `common` as a package).
+- Create two files inside `common`:
+  - `logger.py`: For logging (copy code from GitHub; explained in previous modules).
+  - `custom_exception.py`: For custom exceptions (copy code from GitHub; explained in previous modules).
+- Re-run `pip install -e .` after creating these `__init__.py` and files.
+  - This enables importing (e.g., `get_logger` function from `logger.py`) across directories like frontend or backend.
+  - If not run, imports won't work between directories.
+
+#### 8. API Setup (.env File and API Keys)
+- In the main project folder (outside `app`), create a file named `.env` (for environment variables like API keys).
+- Inside `.env`, add:
+  - `GROQ_API_KEY=your_key_here`
+  - `TAVILY_API_KEY=your_key_here`
+- These APIs are used for:
+  - Groq API: For Language Models (LMs).
+  - Tavily API: For online search.
+  - (Explained in project introduction video.)
+- To get Groq API key:
+  - Open browser, search for "Groq API."
+  - Create/log in to account (free).
+  - Go to API keys > Create new key (name it e.g., "LM ops").
+  - Copy the key and paste into `.env`.
+- To get Tavily API key:
+  - Search for "Tavily" > Log in (or sign up).
+  - In the overview section, copy the default API key.
+  - Paste into `.env`.
+
+#### 9. WSL (Windows Subsystem for Linux) Setup
+- WSL is used to simulate a Linux environment for production-grade projects (not Windows-native).
+- It's needed with Docker Engine for creating Docker apps and Jenkins pipelines later.
+- If not installed:
+  - Open PowerShell in Administrator mode (every Windows has it).
+  - Run: `wsl --install` (copy from GitHub documentation.md file).
+- If already installed:
+  - Run: `wsl --update` and reboot/restart PC for safety.
+- Install Ubuntu:
+  - Open Microsoft Store > Search "Ubuntu."
+  - Install "Ubuntu 22.04" (or the first/normal Ubuntu; 22.04 is recommended).
+  - Open it after install and follow guided steps.
+
+#### 10. Docker Setup on Ubuntu via WSL
+- Docker Engine (not Docker Desktop) is installed on Ubuntu for this project.
+- Search "Install Docker Engine on Ubuntu" or use commands from GitHub documentation.md.
+- Open Ubuntu terminal (after WSL setup).
+- Run commands one by one (from documentation):
+  - Set up Docker apt repository.
+  - Add Docker's official GPG key.
+  - Update apt index.
+  - Install Docker packages (e.g., `docker-ce`, `docker-ce-cli`, etc.).
+- Restart Ubuntu terminal after installation.
+- Verify:
+  - Type `docker --version` (should show Docker version, e.g., Client: Docker Engine - Community 28.1, Server: Docker Engine).
+  - If it shows client and server installed, success. If not, redo steps.
+- Note: Docker Engine includes client and server; used similarly to Docker Desktop in other projects.
+
+#### Final Notes from Video
+- This completes basic project setup: folder structure, virtual env, logging/custom exceptions, API setup, WSL, and Docker.
+- Upcoming videos: Backend setup, frontend setup, core/config/common code.
+- Every time you add `__init__.py` files or new directories, re-run `pip install -e .` to update package recognition.
+- All code/files (e.g., setup.py, logger.py) available on GitHub for copy-paste.
+- Watch referenced videos for deeper explanations (e.g., setup.py, logger.py, custom exceptions, project intro).
