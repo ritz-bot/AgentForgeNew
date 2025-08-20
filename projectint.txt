@@ -269,3 +269,185 @@ This is a detailed step-by-step summary of the video transcript for setting up t
 - Every time you add `__init__.py` files or new directories, re-run `pip install -e .` to update package recognition.
 - All code/files (e.g., setup.py, logger.py) available on GitHub for copy-paste.
 - Watch referenced videos for deeper explanations (e.g., setup.py, logger.py, custom exceptions, project intro).
+
+
+8.92
+
+
+### Configuration Code Video Summary
+
+This is a detailed step-by-step summary of the video transcript for writing the configuration code in the "config" directory for the Multi AI Agent project. I've organized it into sections for easy revision, ensuring no details are skipped. The focus is on setting up API keys, loading them from the .env file, and defining allowed models using Python in settings.py.
+
+#### 1. Navigating to the Config Directory
+- Open your project in VS Code and navigate to the `app` directory.
+- Inside `app`, go to the `config` directory (created in previous setup).
+
+#### 2. Making Config a Package
+- To treat the `config` directory as a Python package (allowing imports), create a file named `__init__.py` (double underscore init double underscore dot py) inside `config`.
+  - This file can be empty; its presence makes the directory importable.
+
+#### 3. Creating settings.py
+- Inside `config`, create a new file named `settings.py`.
+- This file contains the main configuration code for loading APIs and defining models.
+
+#### 4. Imports in settings.py
+- At the top of `settings.py`, add the following imports:
+  - `from dotenv import load_dotenv` (from the python-dotenv library).
+  - `import os` (the built-in OS library).
+- Explanation:
+  - `dotenv` library: Used to load API keys (Groq API and Tavily API) from the `.env` file you created earlier.
+  - `os` library: Used to interact with the operating system, specifically to retrieve environment variables.
+
+#### 5. Loading the .env File
+- After the imports, add: `load_dotenv()`
+- What it does:
+  - Loads all API keys (Groq API and Tavily API) from the `.env` file into the environment, making them accessible in `settings.py`.
+
+#### 6. Creating the Settings Class
+- Define a class named `Settings` (capital S).
+- Inside the class:
+  - Define a variable: `groq_api_key = os.getenv('GROQ_API_KEY')`
+    - This loads the Groq API key from the environment (from .env) into this class variable.
+    - Important: The string `'GROQ_API_KEY'` must exactly match the key name in `.env` (no spelling mistakes).
+  - Similarly: `tavily_api_key = os.getenv('TAVILY_API_KEY')`
+    - Loads the Tavily API key the same way.
+    - Tip: Copy-paste the key names from `.env` to avoid errors.
+- Purpose: Transfers the API keys from the environment (.env) into class variables for easy access.
+
+#### 7. Defining Allowed Models
+- Groq API provides access to many models; you need to specify only certain ones for the project.
+- Google "Groq API supported models" to see the list of production models.
+- Inside the `Settings` class, create a list variable: `allowed_model_names = []`
+  - Populate the list with specific model names (copy exactly to avoid issues).
+  - Examples from transcript:
+    - First model: `'llama-3.1-70b-versatile'` (Llama 3 70 billion parameters, 8192 context; more accurate but slower).
+    - Second model: `'llama-3.1-405b-reasoning'` (Llama 3 versatile version; transcript mentions "llama only but versatile version").
+  - Other options mentioned:
+    - You can use smaller models like 8 billion parameters (e.g., `'llama-3.1-8b-instant'`) for faster responses, though less accurate than 70B.
+    - Distil models or others from the Groq list.
+- Purpose:
+  - Restrict usage to these models only.
+  - In the app, give users an option to choose a model (e.g., via a query prompt: select Llama 3 70B or the versatile version).
+  - You can expand the list later, but start with 2-3 for now.
+
+#### 8. Instantiating the Settings Class
+- After defining the class, add: `settings = Settings()`
+- This creates an instance of the class, loading all the variables (API keys and model list).
+
+#### 9. Usage of settings.py
+- To access the configurations in other parts of the project:
+  - Import from this file: e.g., `from config.settings import settings`
+  - Then use: `settings.groq_api_key`, `settings.tavily_api_key`, or `settings.allowed_model_names`.
+- Simple and centralized: Whenever you need APIs or models, import and use from here.
+
+#### 10. Final Notes from Video
+- This completes the `settings.py` code, which is the main configuration for the project.
+- Move to the next video after this.
+
+This setup ensures secure loading of APIs (without hardcoding) and model restrictions. If revising, test by printing the variables (e.g., add `print(settings.groq_api_key)` temporarily) to verify loading. Note: The transcript uses "drop API key" once (likely a typo for "Groq"), "devel API" (likely "Tavily"), and "table api key" (Tavily); I've corrected to match context.
+
+8.93
+
+### Core Code Setup Video Summary
+
+This is a detailed step-by-step summary of the video transcript for setting up the core logic in the `core` directory for the Multi AI Agent project. I've organized it into sections for easy revision, ensuring no details are skipped. The main file created is `ai_agent.py`, which contains the function for getting responses from AI agents using Groq models, optional Tavily search, and LangGraph for agent creation.
+
+#### 1. Navigating to the Core Directory and Making It a Package
+- Open your project in VS Code and navigate to the `app` directory.
+- Inside `app`, go to the `core` directory (created in previous setup).
+- To treat the `core` directory as a Python package (allowing imports), create a file named `__init__.py` (double underscore init double underscore dot py) inside `core`.
+- Important: Every time you create an `__init__.py` file, run `pip install -e .` (hyphen e full stop) in the terminal.
+  - Open any Command Prompt terminal in the project root.
+  - Type: `pip install -e .` and press Enter.
+  - This initializes/re-installs all dependencies to recognize the new package.
+  - Wait for it to finish installing before proceeding (close the terminal after).
+
+#### 2. Creating ai_agent.py
+- Inside `core`, create a new file named `ai_agent.py`.
+- This file contains all the core logic of the app, specifically for creating and running AI agents.
+
+#### 3. Imports in ai_agent.py
+- First import: `from langchain_groq import ChatGroq`
+  - Purpose: This is a class/module for using Groq models (e.g., Llama versatile or 70B models imported in previous config video).
+  - Allows access to Language Models (LMs) via Groq API.
+- Second import: `from langchain_community.tools.tavily_search import TavilySearchResults`
+  - Purpose: For using the Tavily API for online search.
+  - Both Groq and Tavily APIs/tools are now imported.
+- Third import: `from langgraph.prebuilt import create_react_agent`
+  - Purpose: LangGraph is an advanced library from LangChain for creating AI agents (for multi-agent projects).
+- Fourth import: `from langchain_core.messages import AIMessage`
+  - Purpose: To distinguish AI-generated messages from human ones in conversation history.
+  - If `langchain_core` is not installed automatically:
+    - Add `langchain_core` to `requirements.txt`.
+    - Run `pip install -e .` again.
+- Fifth import: `from app.config.settings import settings`
+  - Purpose: Imports the `settings` instance from `config/settings.py` (contains Groq API key, Tavily API key, and allowed model names).
+
+#### 4. Creating the Function: get_response_from_ai_agent
+- Define a function named `get_response_from_ai_agent`.
+- Parameters (what the function requires):
+  - `lm_id`: The model name/ID (e.g., Llama 70B versatile, Llama 70B, Mistral models; user chooses which Groq model to use).
+  - `query`: The user's question/query.
+  - `allow_search`: Boolean (True/False); whether to allow online search (Tavily will be used if True; user gets a checkbox in the app to enable/disable).
+  - `system_prompt`: The system prompt to control AI behavior (instructions like "do this, then this"; defined later).
+- Purpose: This function sets up and runs an AI agent to respond to the query, optionally using search.
+
+#### 5. Setting Up the Language Model (LM) Inside the Function
+- `lm = ChatGroq(model=lm_id)`
+  - Uses the imported ChatGroq class.
+  - Sets the model to whatever `lm_id` the user passes (e.g., 'llama-3.1-70b-versatile' for 70B versatile model).
+
+#### 6. Setting Up Tools (Tavily Search) Inside the Function
+- `tools = [TavilySearchResults(max_results=2)] if allow_search else []`
+  - Uses list comprehension (might seem confusing at first).
+  - If `allow_search` is True (user allows web search via checkbox):
+    - Add TavilySearchResults tool to the list, limited to top 2 results (`max_results=2`).
+    - Fetches only the top 2 online search results.
+  - If False: Tools list is empty (no search used).
+
+#### 7. Creating the Agent Inside the Function
+- `agent = create_react_agent(model=lm, tools=tools, state_modifier=system_prompt)`
+  - Uses the imported `create_react_agent` from LangGraph.
+  - Passes:
+    - `model=lm`: The LM setup from earlier (based on user-chosen model).
+    - `tools=tools`: The search tool (or empty if not allowed).
+    - `state_modifier=system_prompt`: Modifies the agent's state based on the system prompt (controls behavior; prompt defined later).
+
+#### 8. Starting Conversation History (State) Inside the Function
+- `state = {"messages": [query]}`
+  - Initializes the conversation state as a dictionary with a "messages" key.
+  - Starts with the current user `query` in the messages list.
+  - Purpose: Tracks conversation history (all messages from user so far; maintains context like what was said 5 minutes ago).
+
+#### 9. Running the Agent and Getting Response Inside the Function
+- `response = agent.invoke(state)`
+  - Runs the agent with the current state (conversation history).
+  - Agent processes: Reads messages, thinks, uses search if allowed, generates a reply.
+  - Stores the full response (including generated reply) in `response`.
+
+#### 10. Extracting Messages from Response Inside the Function
+- `messages = response.get("messages")`
+  - Extracts only the "messages" from the response (ignores extra info; focuses on text results).
+
+#### 11. Filtering AI Messages Inside the Function
+- `ai_messages = [message.content for message in messages if isinstance(message, AIMessage)]`
+  - Uses list comprehension to loop through `messages`.
+  - For each `message`, checks if it's an instance of `AIMessage` (using the imported AIMessage class).
+    - If yes (AI-generated): Add `message.content` (the text content) to the list.
+    - If no (human message/query): Skip it.
+  - Purpose: Filters out all AI responses; human queries are in human message instances, AI replies in AIMessage instances.
+  - LLMs set instance types: Human for queries, AI for replies.
+
+#### 12. Returning the Latest AI Message Inside the Function
+- `return ai_messages[-1]`
+  - From the list of AI messages, return only the last one (`[-1]` for list indexing; latest from the end).
+  - Purpose: `ai_messages` has all past AI replies (e.g., from 5/4/3 minutes ago), but you want only the latest (final answer to the current query).
+
+#### 13. Usage and Final Notes from Video
+- This completes the code for `ai_agent.py` (core AI agent logic).
+- The function `get_response_from_ai_agent` will be used in backend and frontend in upcoming videos.
+- Correction: At the end, there's a mention of a "system com" (likely typo for "system_prompt") and a spelling mistake in the code; it's fixed to `state_modifier=system_prompt`.
+- Proceed to the next video after this.
+
+This function enables multi-agent responses with optional search, conversation tracking, and model selection. For testing/revision, ensure imports work after `pip install -e .`, and note potential tongue slips in transcript (e.g., "modules" for "models", "Brock" for "Groq").
+
