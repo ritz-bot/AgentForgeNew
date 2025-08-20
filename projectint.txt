@@ -451,3 +451,481 @@ This is a detailed step-by-step summary of the video transcript for setting up t
 
 This function enables multi-agent responses with optional search, conversation tracking, and model selection. For testing/revision, ensure imports work after `pip install -e .`, and note potential tongue slips in transcript (e.g., "modules" for "models", "Brock" for "Groq").
 
+8.94
+
+
+
+### Backend Code Video Summary
+
+This is a detailed step-by-step summary of the video transcript for setting up the backend code in the `backend` directory for the Multi AI Agent project. I've organized it into sections for easy revision, ensuring no details are skipped. The main file created is `api.py`, which uses FastAPI to create an API endpoint for handling requests to the AI agent.
+
+#### 1. Navigating to the Backend Directory and Making It a Package
+- Open your project in VS Code and navigate to the `app` directory.
+- Inside `app`, go to the `backend` directory (created in previous setup).
+- To treat the `backend` directory as a Python package (allowing imports), create a file named `__init__.py` (double underscore init double underscore dot py) inside `backend`.
+- Important: Every time you create an `__init__.py` file, run `pip install -e .` (hyphen e full stop) in the terminal.
+  - Open any Command Prompt terminal in the project root.
+  - Type: `pip install -e .` and press Enter.
+  - This ensures the backend is treated as a package and initializes/re-installs dependencies.
+  - Wait for it to finish installing before proceeding (close the terminal after).
+
+#### 2. Creating api.py
+- Inside `backend`, create a new file named `api.py`.
+- This file will create the API using FastAPI.
+
+#### 3. Imports in api.py
+- `from fastapi import FastAPI, HTTPException`
+  - FastAPI: For building the API.
+  - HTTPException: For handling API-related exceptions (e.g., errors like 500 Internal Server Error, 404 Not Found, 200 OK success).
+    - Example: 200 for success, 500 for failure, 404 for not found.
+- `from pydantic import BaseModel`
+  - Purpose: Validates the structure of incoming data (e.g., ensures data types like strings, lists).
+- `from typing import List`
+  - Purpose: For type hinting lists (used later for messages field).
+- `from app.core.ai_agent import get_response_from_ai_agent`
+  - Imports the core function from `core/ai_agent.py` (created in previous video).
+- `from app.config.settings import settings`
+  - Imports the settings instance from `config/settings.py` (contains allowed model names, etc.).
+- `from app.common.logger import get_logger`
+  - Imports the logger function from `common/logger.py`.
+- `from app.common.custom_exception import CustomException`
+  - Imports the custom exception class from `common/custom_exception.py` (for custom error handling).
+
+#### 4. Initializing the Logger
+- `logger = get_logger(__name__)`
+  - Initializes the logger for this file.
+  - Logs will be saved in a separate folder (logging explained in a separate video before the project).
+
+#### 5. Initializing the FastAPI App
+- `app = FastAPI(title="Multi AI Agent")`
+  - Creates the FastAPI application instance.
+  - Sets the title to "Multi AI Agent" (can be any title).
+
+#### 6. Creating the RequestState Class for Data Validation
+- Define a class: `class RequestState(BaseModel):`
+  - Inherits from BaseModel (from Pydantic) for validation.
+- Fields inside the class:
+  - `model_name: str` (must be a string; e.g., if someone passes a number, it errors).
+  - `system_prompt: str` (must be a string; defines AI behavior, e.g., "behave as a financial advisor" or "health advisor" or "law advisor").
+  - `messages: List[str]` (must be a list of strings; list of conversation messages, as filtered in core code – human/AI messages in string form).
+  - `allow_search: bool` (boolean; True or False – whether to allow online search).
+- Purpose: Validates incoming data structure to prevent errors.
+  - Links to core function parameters: model_name (LM ID), messages (query/history), allow_search, system_prompt (state modifier).
+  - Ensures data matches expected format (e.g., no numerical system_prompt, messages as list of strings).
+  - If invalid (e.g., model_name as number), it raises an error early.
+
+#### 7. Creating the API Endpoint
+- Decorator: `@app.post("/chat")`
+  - Creates a POST endpoint at URL "/chat" (or any desired URL).
+- Function: `def chat_endpoint(request: RequestState):`
+  - Takes `request` as input, typed as RequestState (inherits the validated structure).
+
+#### 8. Logging the Received Request
+- `logger.info(f"Received request for model {request.model_name}")`
+  - Logs that a request was received, including the model name.
+  - Provides info: Request made, and which model (e.g., Llama 70B or versatile).
+
+#### 9. Validating the Model Name
+- `if request.model_name not in settings.allowed_model_names:`
+  - Checks if the requested model is in the allowed list (from settings.py, e.g., only 2 models like Llama 70B versatile and another).
+  - If not:
+    - `logger.warning(f"Invalid model name: {request.model_name} attempted")` (logs a warning).
+    - `raise HTTPException(status_code=400, detail="Invalid model name")` (raises 400 Bad Request error with detail message).
+- Purpose: Prevents use of unallowed models (e.g., if user tries Gemini or Gemma, which aren't in allowed_model_names).
+
+#### 10. Try-Except Block for Generating Response
+- `try:`
+  - `response = get_response_from_ai_agent(request.model_name, request.messages, request.allow_search, request.system_prompt)`
+    - Calls the core function with exact parameters in order: model_name, messages, allow_search, system_prompt.
+    - Matches the format defined in RequestState and core function.
+  - `logger.info(f"Successfully got response from AI agent for model {request.model_name}")`
+    - Logs success, including the model (e.g., "Successfully got response from AI agent for model llama-3.1-70b-versatile").
+  - `return {"response": response}`
+    - Returns the response in JSON format (e.g., {"response": "the AI's answer"}).
+- `except Exception as e:`
+  - `logger.error("Error occurred during response generation")`
+    - Logs the error.
+  - `raise HTTPException(status_code=500, detail=str(CustomException("Failed to get AI response", error_detail=e)))`
+    - Raises 500 Internal Server Error.
+    - Uses CustomException to format the detail (e.g., "Failed to get AI response" with error details from `e`).
+    - Converts to string for the detail.
+
+#### 11. Overall Code Summary from Video
+- Imports: FastAPI and HTTPException for API/exceptions; BaseModel for validation; List for typing; core function for AI logic; settings for configs; logger for logging; CustomException for errors.
+- Logger initialized for tracking.
+- FastAPI app initialized with title.
+- RequestState class defines/validates incoming data: model_name (str), system_prompt (str for AI behavior), messages (list of str for conversation history), allow_search (bool for search option).
+- Endpoint "/chat" (POST): Receives validated request, logs receipt.
+- Checks model validity: If invalid (not in allowed_model_names), log warning and raise 400 error.
+- Try: Calls core function with params, logs success, returns JSON response.
+- Except: Logs error, raises 500 with custom exception detail.
+- Flow: Incoming data validated → Logged → Model checked → Agent called (if valid) → Response returned or error raised.
+- System prompt: Defines AI role (e.g., financial/medical/law advisor); will be defined later.
+- Proceed to the next video after this.
+
+This backend handles API requests, validation, logging, and errors securely. For revision, test by running the app (upcoming videos) and checking logs for requests/errors. Note: Transcript has some slips (e.g., "pedantic" for "pydantic", "hyphen full stop" for "-e .", "I" for "AI"); corrected to match intent.
+
+
+
+8.95
+
+### Frontend Code Video Summary
+
+This is a detailed step-by-step summary of the video transcript for setting up the frontend code in the `frontend` directory for the Multi AI Agent project. I've organized it into sections for easy revision, ensuring no details are skipped. The main file created is `ui.py`, which uses Streamlit to build the UI and interacts with the backend API.
+
+#### 1. Navigating to the Frontend Directory and Making It a Package
+- Open your project in VS Code and navigate to the `app` directory.
+- Inside `app`, go to the `frontend` directory (created in previous setup).
+- To treat the `frontend` directory as a Python package (allowing imports), create a file named `__init__.py` (double underscore init double underscore dot py) inside `frontend`.
+- Important: Every time you create an `__init__.py` file, run `pip install -e .` (hyphen e full stop) in the terminal.
+  - Open any Command Prompt terminal in the project root.
+  - Type: `pip install -e .` and press Enter.
+  - Maximize the terminal if needed for visibility.
+  - Wait for it to finish before proceeding (close the terminal after).
+
+#### 2. Creating ui.py
+- Inside `frontend`, create a new file named `ui.py`.
+- This file contains all the UI logic using Streamlit.
+
+#### 3. Imports in ui.py
+- `import streamlit as st` (alias as st for convenience; used to create the UI).
+- `import requests` 
+  - Purpose: Sends HTTP POST requests to the backend API (matches the POST endpoint created in backend `api.py` at "/chat").
+- `from app.config.settings import settings`
+  - Imports settings (contains allowed_model_names for model selection).
+- `from app.common.logger import get_logger`
+  - Imports the logger function.
+- `from app.common.custom_exception import CustomException`
+  - Imports the custom exception class for error handling.
+
+#### 4. Initializing the Logger
+- `logger = get_logger(__name__)`
+  - Initializes the logger for this file (uses the module name).
+
+#### 5. Setting Up Page Configuration
+- `st.set_page_config(page_title="Multi AI Agent", layout="centered")`
+  - Sets the page title to "Multi AI Agent".
+  - Sets layout to "centered" (centers all UI elements).
+
+#### 6. Adding the Title
+- `st.title("Multi AI Agent using Groq and Tavily")`
+  - Displays the main title on the UI.
+
+#### 7. System Prompt Input
+- `system_prompt = st.text_area("Define your AI Agent", height=70)`
+  - Creates a text area for the user to input the system prompt.
+  - Purpose: Defines the AI agent's behavior (e.g., medical agent, business helper, homework helper, general knowledge agent).
+  - Height set to 70 for the text box.
+  - System prompt controls AI behavior; user defines it (not to be confused with user query).
+
+#### 8. Model Selection
+- `selected_model = st.selectbox("Select your AI Model", settings.allowed_model_names)`
+  - Creates a select box dropdown for choosing the model.
+  - Options come from `settings.allowed_model_names` (e.g., Llama 70B, Llama 70B versatile from config).
+  - User selects one model.
+
+#### 9. Allow Web Search Checkbox
+- `allow_web_search = st.checkbox("Allow Web Search")`
+  - Creates a checkbox to toggle web search (uses Tavily API if checked).
+  - Boolean: True if checked (allow search), False otherwise.
+
+#### 10. User Query Input
+- `user_query = st.text_area("Enter your Query", height=150)`
+  - Creates a larger text area for the user's question/query.
+  - Height set to 150.
+  - Purpose: The actual question to ask the AI (e.g., if system prompt is medical agent, query like "What is cancer?").
+  - Difference: System prompt defines behavior (e.g., "Behave as a medical advisor"); user query is the specific question.
+  - Messages in backend refer to this query (and conversation history).
+
+#### 11. Defining the API URL
+- `api_url = "http://127.0.0.1:9999/chat"`
+  - Sets the backend API endpoint URL.
+  - "http://127.0.0.1" is localhost.
+  - Port: 9999 (can change based on where backend runs).
+  - "/chat" matches the backend POST endpoint.
+  - Change this URL according to your backend setup (explained later).
+
+#### 12. Creating the "Ask Agent" Button and Payload
+- `if st.button("Ask Agent") and user_query.strip():`
+  - Creates a button labeled "Ask Agent".
+  - Checks if button is clicked and user_query is not empty (after stripping whitespace with `.strip()` to remove extra spaces).
+- Inside the if block:
+  - `payload = {`
+    - `"model_name": selected_model,` (from user selection).
+    - `"system_prompt": system_prompt,` (from user input).
+    - `"messages": [user_query],` (list with the user query; backend expects list of strings).
+    - `"allow_search": allow_web_search` (boolean from checkbox).
+  - `}`
+  - Purpose: Payload is the data (JSON format) sent to backend.
+  - Must match backend's RequestState structure exactly (model_name, system_prompt, messages, allow_search) – spellings must be identical to avoid errors.
+
+#### 13. Try Block: Sending the Request and Logging
+- `try:`
+  - `logger.info("Sending request to backend")` (logs the request being sent).
+  - `response = requests.post(api_url, json=payload)`
+    - Uses requests to send POST request to `api_url` with `json=payload`.
+    - Sends the data (payload) to the backend endpoint.
+
+#### 14. Handling Successful Response (Status 200)
+- `if response.status_code == 200:`
+  - 200 means success (as explained in previous backend video).
+  - `agent_response = response.json().get("response", "")`
+    - Extracts the "response" key from the JSON response (defaults to empty string if missing).
+  - `logger.info("Successfully received response from backend")` (logs success).
+  - Display the response:
+    - `st.subheader("Agent Response")`
+    - `st.markdown(agent_response.replace("\n", "<br>"), unsafe_allow_html=True)`
+      - Replaces newlines ("\n") with HTML break tags ("<br>") for cleaner formatting.
+      - Purpose: Cleans unformatted AI response (e.g., turns "My name is Rahul\nI am building AI agents" into line breaks for better readability).
+      - `unsafe_allow_html=True` allows HTML tags (since using <br>).
+
+#### 15. Handling Failed Response (Non-200 Status)
+- `else:`
+  - `logger.error("Backend error")` (logs the error).
+  - `st.error("Error with backend")` (displays error message on Streamlit UI).
+  - Handles errors like 404 (not found), 500 (internal error).
+
+#### 16. Except Block: General Exception Handling
+- `except Exception as e:`
+  - `logger.error("Error occurred while sending request to backend")` (logs the error).
+  - `st.error(str(CustomException("Failed to communicate with backend")))`
+    - Raises and displays a custom exception message (e.g., "Failed to communicate with backend").
+
+#### 17. Overall Code Summary from Video
+- Imports: Streamlit (UI), requests (HTTP POST to backend), settings (models), logger, CustomException.
+- Logger initialized.
+- Page config: Title "Multi AI Agent", centered layout.
+- UI elements: Title, system_prompt text area (defines agent behavior), selectbox for model (from allowed list), checkbox for web search (Tavily), user_query text area (question to ask).
+- API URL: Localhost on port 9999 at "/chat" (triggers backend endpoint).
+- Button "Ask Agent": Collects inputs into payload (must match backend structure: model_name, system_prompt, messages=[query], allow_search).
+- Sends POST request with payload to backend.
+- If success (200): Extracts response, logs success, cleans and displays it (replace \n with <br> for readability, allow HTML).
+- If failure: Logs/displays error.
+- Exceptions: Logged and shown via CustomException.
+- Flow: User inputs → Button click → Payload sent to backend → Response received → Displayed (or error).
+- Upcoming: Next video connects backend/frontend to run the app and show it working.
+
+This frontend connects to the backend via API, sending the 4 required params (model, prompt, messages/query, search). For revision, ensure spellings match backend (e.g., "model_name"), and test after connecting in next video. Note: Transcript has slips (e.g., "hyphen full stop" for "-e .", "Brown" for "prompt", "I" for "AI"); corrected to match intent.
+
+
+
+8.96
+
+
+### Summary of the Video Transcript: Connecting Backend and Frontend in the AI Agent Project
+
+This video focuses on integrating the backend (FastAPI) and frontend (Streamlit) in the main.py file to run the multi-AI agent app successfully. The goal is to create a single entry point (main.py) that launches both services simultaneously, ensuring the backend starts first. Below is a detailed breakdown of the steps, code structure, and demonstration, preserving all key details for revision purposes.
+
+#### 1. **Initial Setup in main.py**
+   - Navigate to the main.py file created in the Project Setup video (located in the app directory).
+   - This file will handle connecting the frontend and backend.
+
+#### 2. **Imports**
+   - Import default-installed modules:
+     - `subprocess` (for running external processes).
+     - `threading` (for running services asynchronously).
+     - `time` (for adding delays).
+   - Import custom modules:
+     - `from app.common.logger import get_logger` (for logging).
+     - `from app.common.custom_exception import CustomException` (for custom error handling).
+   - Import and call `from dotenv import load_dotenv` to load environment variables.
+     - Reason: Although load_dotenv is already in config/settings.py, in production, the app is triggered via main.py (not settings.py). Thus, environment variables must be reloaded here to ensure they are available when running main.py.
+
+#### 3. **Logger Initialization**
+   - Initialize the logger: `logger = get_logger(__name__)` (using the magic method for the module name).
+
+#### 4. **Function: run_backend()**
+   - Define an empty function `def run_backend():`.
+   - Use a try-except block for error handling.
+   - Inside try:
+     - Log: `logger.info("Starting backend service")`.
+     - Use `subprocess.run()` to launch the backend (FastAPI via Uvicorn):
+       - Command as a list: `["uvicorn", "backend.api:app", "--host", "127.0.0.1", "--port", "9999"]`.
+         - "backend.api:app": Refers to the app object in backend/api.py.
+         - Host: 127.0.0.1 (localhost, matched from frontend/ui.py).
+         - Port: 9999 (must match the port defined in the backend setup).
+       - Add `check=True` to raise an error if the subprocess fails.
+   - Inside except Exception as e:
+     - Log: `logger.error("Problem with backend service")`.
+     - Raise: `raise CustomException("Failed to start backend", e)`.
+
+#### 5. **Function: run_frontend()**
+   - Define an empty function `def run_frontend():`.
+   - Use a try-except block for error handling.
+   - Inside try:
+     - Log: `logger.info("Starting frontend service")`.
+     - Use `subprocess.run()` to launch the frontend (Streamlit):
+       - Command as a list: `["streamlit", "run", "app/frontend/ui.py"]`.
+         - "app/frontend/ui.py": Path to the Streamlit UI file.
+       - Add `check=True` to raise an error if the subprocess fails.
+   - Inside except Exception as e:
+     - Log: `logger.error("Problem with frontend service")`.
+     - Raise: `raise CustomException("Failed to start frontend", e)`.
+
+#### 6. **Merging Backend and Frontend in the Main Block**
+   - Use `if __name__ == "__main__":` to ensure code runs only when main.py is executed directly (e.g., `python main.py`).
+   - Inside a try-except block:
+     - Create a thread for the backend: `threading.Thread(target=run_backend).start()`.
+       - Purpose: Runs backend asynchronously in a separate thread, so it doesn't block the frontend and continues even if frontend stops.
+     - Add a delay: `time.sleep(2)`.
+       - Reason: Ensures backend starts fully (about 2 seconds) before frontend, preventing errors from frontend trying to connect too early.
+     - Then call: `run_frontend()`.
+   - Inside except CustomException as e:
+     - Log: `logger.exception("Custom exception occurred")`.
+     - Optionally, print or handle: `str(e)`.
+
+#### 7. **Overall Code Summary in main.py**
+   - Imports: subprocess, threading, time, get_logger, CustomException, load_dotenv.
+   - Load environment variables via load_dotenv().
+   - Initialize logger.
+   - Define run_backend() and run_frontend() with subprocess calls, logging, and custom exceptions.
+   - In if __name__ == "__main__": Start backend in a thread, sleep 2 seconds, start frontend, with exception handling.
+   - Key rationale: Backend must start first (hence thread and sleep) to support the frontend; both run on separate ports (FastAPI on 9999, Streamlit on default 8501).
+
+#### 8. **Running and Demonstrating the App**
+   - Open a CMD terminal (kill other terminals if needed).
+   - Run: `python app/main.py`.
+     - This automatically triggers both backend (Uvicorn/FastAPI) and frontend (Streamlit).
+   - Streamlit UI opens (on port 8501 by default).
+   - UI Interaction:
+     - Define AI Agent: Enter "You are a medical AI agent specialized in cancer."
+     - Choose Model: Select a versatile model (e.g., Grok or others like 70B parameter model).
+     - Allow Web Search: Yes.
+     - Enter Query: "Can cancer be cured?"
+       - Response: "Unfortunately, there is no universal cure for cancer." Explains treatments like chemotherapy, blood transfusion therapy, etc. Notes that advanced stages may not be curable.
+     - Test Out-of-Domain Query: "Can you give me best stocks?"
+       - Response: Limits to medical/cancer-related stocks (e.g., promising cancer therapy stocks), staying within the agent's specialized domain (medical/cancer). Does not provide universal stock advice.
+   - Switch Models: Try 70B parameter model; similar domain-restricted responses (e.g., cancer therapy stocks).
+   - Other Models: Supports Mistral, DeepSeek Coder (24B), etc. Note rate limits for free usage; good for development, but suggest Grok Premium for production-grade.
+   - Customization: Change agent to financial advisor, law advisor, etc., and query accordingly.
+   - Ports: Streamlit on 8501, FastAPI on 9999 (manage these in future videos).
+
+#### 9. **Additional Notes**
+   - The app uses API/gRPC internally for agent responses.
+   - Agents can get "out of hand" but stay domain-limited.
+   - Play with the app: Experiment with different agents, models, and queries.
+   - Next video: Handling ports (8501 and 9999).
+
+This summary captures the entire transcript sequentially, including code snippets, rationales, and demo interactions, without omissions for thorough revision.
+
+
+8.96
+
+
+
+### Summary of the Video Transcript: Connecting Backend and Frontend in the AI Agent Project
+
+This video focuses on integrating the backend (FastAPI) and frontend (Streamlit) in the main.py file to run the multi-AI agent app successfully. The goal is to create a single entry point (main.py) that launches both services simultaneously, ensuring the backend starts first. Below is a detailed breakdown of the steps, code structure, and demonstration, preserving all key details for revision purposes.
+
+#### 1. **Initial Setup in main.py**
+   - Navigate to the main.py file created in the Project Setup video (located in the app directory).
+   - This file will handle connecting the frontend and backend.
+
+#### 2. **Imports**
+   - Import default-installed modules:
+     - `subprocess` (for running external processes).
+     - `threading` (for running services asynchronously).
+     - `time` (for adding delays).
+   - Import custom modules:
+     - `from app.common.logger import get_logger` (for logging).
+     - `from app.common.custom_exception import CustomException` (for custom error handling).
+   - Import and call `from dotenv import load_dotenv` to load environment variables.
+     - Reason: Although load_dotenv is already in config/settings.py, in production, the app is triggered via main.py (not settings.py). Thus, environment variables must be reloaded here to ensure they are available when running main.py.
+
+#### 3. **Logger Initialization**
+   - Initialize the logger: `logger = get_logger(__name__)` (using the magic method for the module name).
+
+#### 4. **Function: run_backend()**
+   - Define an empty function `def run_backend():`.
+   - Use a try-except block for error handling.
+   - Inside try:
+     - Log: `logger.info("Starting backend service")`.
+     - Use `subprocess.run()` to launch the backend (FastAPI via Uvicorn):
+       - Command as a list: `["uvicorn", "backend.api:app", "--host", "127.0.0.1", "--port", "9999"]`.
+         - "backend.api:app": Refers to the app object in backend/api.py.
+         - Host: 127.0.0.1 (localhost, matched from frontend/ui.py).
+         - Port: 9999 (must match the port defined in the backend setup).
+       - Add `check=True` to raise an error if the subprocess fails.
+   - Inside except Exception as e:
+     - Log: `logger.error("Problem with backend service")`.
+     - Raise: `raise CustomException("Failed to start backend", e)`.
+
+#### 5. **Function: run_frontend()**
+   - Define an empty function `def run_frontend():`.
+   - Use a try-except block for error handling.
+   - Inside try:
+     - Log: `logger.info("Starting frontend service")`.
+     - Use `subprocess.run()` to launch the frontend (Streamlit):
+       - Command as a list: `["streamlit", "run", "app/frontend/ui.py"]`.
+         - "app/frontend/ui.py": Path to the Streamlit UI file.
+       - Add `check=True` to raise an error if the subprocess fails.
+   - Inside except Exception as e:
+     - Log: `logger.error("Problem with frontend service")`.
+     - Raise: `raise CustomException("Failed to start frontend", e)`.
+
+#### 6. **Merging Backend and Frontend in the Main Block**
+   - Use `if __name__ == "__main__":` to ensure code runs only when main.py is executed directly (e.g., `python main.py`).
+   - Inside a try-except block:
+     - Create a thread for the backend: `threading.Thread(target=run_backend).start()`.
+       - Purpose: Runs backend asynchronously in a separate thread, so it doesn't block the frontend and continues even if frontend stops.
+     - Add a delay: `time.sleep(2)`.
+       - Reason: Ensures backend starts fully (about 2 seconds) before frontend, preventing errors from frontend trying to connect too early.
+     - Then call: `run_frontend()`.
+   - Inside except CustomException as e:
+     - Log: `logger.exception("Custom exception occurred")`.
+     - Optionally, print or handle: `str(e)`.
+
+#### 7. **Overall Code Summary in main.py**
+   - Imports: subprocess, threading, time, get_logger, CustomException, load_dotenv.
+   - Load environment variables via load_dotenv().
+   - Initialize logger.
+   - Define run_backend() and run_frontend() with subprocess calls, logging, and custom exceptions.
+   - In if __name__ == "__main__": Start backend in a thread, sleep 2 seconds, start frontend, with exception handling.
+   - Key rationale: Backend must start first (hence thread and sleep) to support the frontend; both run on separate ports (FastAPI on 9999, Streamlit on default 8501).
+
+#### 8. **Running and Demonstrating the App**
+   - Open a CMD terminal (kill other terminals if needed).
+   - Run: `python app/main.py`.
+     - This automatically triggers both backend (Uvicorn/FastAPI) and frontend (Streamlit).
+   - Streamlit UI opens (on port 8501 by default).
+   - UI Interaction:
+     - Define AI Agent: Enter "You are a medical AI agent specialized in cancer."
+     - Choose Model: Select a versatile model (e.g., Grok or others like 70B parameter model).
+     - Allow Web Search: Yes.
+     - Enter Query: "Can cancer be cured?"
+       - Response: "Unfortunately, there is no universal cure for cancer." Explains treatments like chemotherapy, blood transfusion therapy, etc. Notes that advanced stages may not be curable.
+     - Test Out-of-Domain Query: "Can you give me best stocks?"
+       - Response: Limits to medical/cancer-related stocks (e.g., promising cancer therapy stocks), staying within the agent's specialized domain (medical/cancer). Does not provide universal stock advice.
+   - Switch Models: Try 70B parameter model; similar domain-restricted responses (e.g., cancer therapy stocks).
+   - Other Models: Supports Mistral, DeepSeek Coder (24B), etc. Note rate limits for free usage; good for development, but suggest Grok Premium for production-grade.
+   - Customization: Change agent to financial advisor, law advisor, etc., and query accordingly.
+   - Ports: Streamlit on 8501, FastAPI on 9999 (manage these in future videos).
+
+#### 9. **Additional Notes**
+   - The app uses API/gRPC internally for agent responses.
+   - Agents can get "out of hand" but stay domain-limited.
+   - Play with the app: Experiment with different agents, models, and queries.
+   - Next video: Handling ports (8501 and 9999).
+
+This summary captures the entire transcript sequentially, including code snippets, rationales, and demo interactions, without omissions for thorough revision.
+
+
+8.97
+
+
+
+
+
+
+
+8.98
+
+
+
+
+
+
+
+
+
+8.99

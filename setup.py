@@ -4,7 +4,7 @@ with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
 setup(
-    name="AgentForge",
+    name="MULTI AI AGENT",
     version="0.1",
     author="Ridham Puri",
     packages=find_packages(),

@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: MULTI-AI-AGENT
+Version: 0.1
+Author: Ridham Puri
+Requires-Dist: langchain-groq
+Requires-Dist: langchain-community
+Requires-Dist: python-dotenv
+Requires-Dist: uvicorn
+Requires-Dist: fastapi
+Requires-Dist: pydantic
+Requires-Dist: streamlit
+Requires-Dist: langgraph
+Requires-Dist: langchain-core
+Requires-Dist: streamlit
+Dynamic: author
+Dynamic: requires-dist
