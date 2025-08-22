@@ -910,9 +910,78 @@ This video focuses on integrating the backend (FastAPI) and frontend (Streamlit)
 This summary captures the entire transcript sequentially, including code snippets, rationales, and demo interactions, without omissions for thorough revision.
 
 
+
+
+
+### Problem (Dikkat):
+- **Pehla Error**: `create_react_agent()` mein `state_modifier` keyword galat tha (old/deprecated). Yeh LangGraph ke new version mein nahi chalta.
+- **Dusra Error**: Function call mein `model` argument missing tha (positional required, humne `llm=llm` ki jagah `model=llm` kiya).
+- **Teesra Issue**: Query (messages) ko proper `HumanMessage` objects mein convert nahi kiya tha, isliye agent generic greeting deta tha instead of actual answer.
+
+### Changes (Kya Kiya):
+- `state_modifier` ko `prompt` se replace kiya aur `ChatPromptTemplate.from_messages([("system", system_prompt)])` use kiya for system prompt.
+- Agent creation mein `model=llm` add kiya (llm as model pass karne ke liye).
+- Query ko format kiya: `messages = [HumanMessage(content=msg) for msg in query]` taki agent sahi se process kare.
+
+Revision Tip: Yaad rakh - LangGraph mein agent banate time: `prompt` for system, `model` for LLM, aur queries ko `HumanMessage` mein wrap karo! Bhai, ab code solid hai. 😎
+
+
+
+
+
 8.97
 
 
+
+### Detailed Summary of Code Versioning Video Transcript
+
+This summary captures every key detail from the transcript without omissions, organized into sections for easy revision. The video explains uploading code to GitHub (a Source Code Management or SCM tool) for tracking changes, building versions, and managing code history.
+
+#### Introduction to Code Versioning
+- Code versioning involves uploading your code to an SCM like GitHub.
+- Benefits: Track all code changes, maintain versions of the code.
+
+#### Creating the .gitignore File
+- In the root directory of your project, create a file named `.gitignore`.
+- In this file, list all files and folders you do not want to push to GitHub.
+- Specific exclusions:
+  - `venv/`: Do not push the virtual environment because its files are very large (around 1 GB to 1.5 GB). GitHub accommodates only 50 to 200 MB of data.
+  - Project management details: Copy the relative path of these files/folders and paste them into `.gitignore`. Do not push these.
+  - Logs (optional): If you want to push logs, you can; otherwise, exclude them.
+  - `.env` file: Most important to exclude, as it contains personal information like API keys or tables.
+- These four items (venv, project management details, optional logs, .env) are the main things not to push to GitHub.
+- Save the `.gitignore` file after adding these.
+
+#### Setting Up GitHub Repository
+- Create a GitHub account if you don't have one.
+- Create a new repository. Example name: "multi AI agent project".
+- Do not add a README file during creation. Reason: Adding it prevents the display of important initial setup commands.
+- Note: This is a general video on code versioning, which will be reused for upcoming projects. Do not get confused by the example project name—adjust it according to your specific project.
+- General exclusions remain the same across projects: .env, virtual environment, project management files, logs, and other similar items.
+- The instructor mentions it's hectic to remake the same video, so this one will be referenced repeatedly.
+
+#### Downloading and Installing Git CLI
+- In your browser, search for "git download" to get the Git CLI (Command Line Interface).
+- Download the first option based on your operating system (example: Windows).
+- Installing Git allows you to run Git commands in your terminal (e.g., in VS Code or Windows CMD).
+
+#### Initializing and Pushing Code to GitHub
+- Open a CMD terminal in VS Code (or your IDE) in the project root.
+- Run the following commands in sequence (copy from GitHub's repository setup page if needed):
+  - `git init`: Initializes the Git repository.
+  - `git branch -M main`: Sets the main branch (renames if necessary).
+  - `git remote add origin [repository URL]`: Connects your local repo to the GitHub remote. 
+    - If it shows "git remote origin already exists," remove the existing one with `git remote remove origin` (or `git remote rm origin`), then retry.
+  - `git add .`: Stages all files (except those in .gitignore) for commit.
+  - `git commit -m "commit message"`: Commits the changes with a message (example: "commit").
+  - `git push -u origin main`: Pushes the code to the main branch on GitHub.
+- After pushing, go to your GitHub repository page, reload it, and verify the upload.
+- Uploaded items include: app directory, .gitignore, requirements file, setup file, and everything else (excluding ignored files).
+
+#### Final Notes
+- This process is straightforward and simple for code versioning.
+- Follow the exact same pattern for code versioning in all other projects.
+- The video ends with: "Thank you. Let's meet at the next video."
 
 
 

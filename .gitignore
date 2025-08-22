@@ -1,2 +1,4 @@
-/.env
+.env
 projectint.txt
+venv/
+MULTI_AI_AGENT.egg-info/
