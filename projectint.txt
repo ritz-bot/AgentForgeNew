@@ -1162,7 +1162,106 @@ The video begins with an introduction, stating that the CI/CD deployment process
 
 8.100
 
+### Detailed Summary of GitHub Integration with Jenkins Video Transcript
 
+This summary captures every key detail from the transcript without omissions, organized into sections for easy revision. The video follows the previous Jenkins setup video and focuses on integrating GitHub with Jenkins for CI/CD.
+
+#### Introduction
+- In the previous video, Jenkins was set up.
+- In this video, the focus is integrating GitHub with Jenkins.
+
+#### Generating GitHub Personal Access Token
+- Open GitHub, go to your profile, and open settings in a new tab.
+- In settings, go to "Developer Settings" (at the bottom).
+- Under Developer Settings, go to "Personal Access Tokens".
+- Create a classic token: Click "Generate new token (classic)".
+- Verify with your GitHub password to log in.
+- Name the token (e.g., "multi API agent" or based on project name).
+- Set expiration date (e.g., 30 days or as desired).
+- Grant permissions: Must include "repo" and "repo hook".
+  - Optional: Other permissions like "admin" or "admin public key", but not necessary.
+- Generate the token.
+- Copy the token properly and keep the tab open (once closed, the token can't be viewed again).
+
+#### Adding Credentials in Jenkins
+- Open your Jenkins dashboard.
+- Go to "Manage Jenkins" on the left side.
+- Ignore any warnings (dismiss them).
+- Go to "Credentials", then "Global Credentials", and click "Add Credentials".
+- Set kind to "Username with password".
+- Username: Your GitHub username (copy from GitHub profile, e.g., "DataGuru0").
+- Password: The generated access token (copy from GitHub tab).
+- ID and Description: Give any name (e.g., "GitHub token"); can copy-paste the same for both.
+- Create the credential.
+- Verify: The new credential "GitHub token" appears in the list.
+
+#### Explanation of the Token
+- The GitHub token grants access to your GitHub repositories.
+- It allows copying code from GitHub to Jenkins.
+- Integrates Jenkins with GitHub using login permissions.
+- The token allows partial access to your GitHub account (e.g., only repos, depending on granted permissions like "repo" and "repo hook").
+- Jenkins can partially access your GitHub account based on the permissions given.
+
+#### Creating a New Pipeline Job in Jenkins
+- Go back to the Jenkins dashboard.
+- Click "New Item".
+- Name it (e.g., "multi AI agent").
+- Select "Pipeline" and click "OK".
+- Scroll down to the "Pipeline" section.
+- Select "Pipeline Script from SCM" (SCM means Source Code Management; GitHub is the SCM).
+- Select "Git" as SCM.
+- Repository URL: From GitHub repo, click "Code" section, copy the URL, and paste it.
+- Credentials: Select the saved "GitHub token" credential.
+- Branch: Change from "master" to "main" (as in the example repo).
+- Script Path: Keep default as "jenkinsfile".
+- Apply and save.
+
+#### Generating Pipeline Script
+- In the job, open "Pipeline Syntax".
+- Select "checkout: Check out from version control".
+- Paste the repository URL.
+- Select the credential.
+- Set branch to "main".
+- Generate the pipeline script.
+- Copy the generated code and keep the tab open (don't close it).
+
+#### Creating Jenkinsfile in VS Code
+- Open VS Code.
+- In the root directory, create a file named "Jenkinsfile" (J capital, e n k i n s f i l e; it shows a red icon).
+- From the GitHub repo in the resource section, find the Jenkinsfile, copy its content, and paste it into your local Jenkinsfile.
+- Comment out parts: From the second bracket, comment out from "SonarQube analysis" to the second last bracket (use Ctrl + / to comment multiple lines).
+- Reason: Do one stage at a time to avoid rewriting code; first stage is cloning GitHub repo to Jenkins (integrating GitHub and Jenkins).
+- Remove the second line if needed.
+- Paste the generated pipeline script in place of the "then" section.
+- Environment variables will be explained later (can comment them out for now).
+- Comment out other stages so only the first stage runs (cloning GitHub repo to Jenkins).
+- Save the file.
+
+#### Pushing Changes to GitHub
+- Open a command terminal (CMD) in VS Code.
+- Run: `git add .`
+- `git commit -m "commit"` (or a message describing changes; same as code versioning steps).
+- `git push origin main`
+- Refresh GitHub repo: Now it has the Jenkinsfile, Dockerfile, etc. (previously missing because code wasn't pushed).
+
+#### Building the Pipeline and Troubleshooting
+- Back in Jenkins dashboard, open the job (e.g., "multi AI agent").
+- Click "Build Now".
+- See a green build scheduled; first build runs but fails.
+- Check console output: Failure due to not setting environment variables (code-related issue).
+- Fix: Comment out the whole environment section in Jenkinsfile.
+- Push changes again: `git add .`, `git commit -m "minor fix"`, `git push origin main` (simple, minor mistake; don't worry).
+- Build again: Second build.
+- Check console output: "Finished: SUCCESS" with a green tick.
+
+#### Verifying Integration
+- Question: Where is the copied code from GitHub to Jenkins?
+- In the successful build (e.g., second build), go to "Workspace".
+- See all GitHub contents now in Jenkins workspace: Custom Jenkins, Dockerfile, Jenkinsfile, requirements, setup, app (with backend, common, config, core, frontend, main.py), everything.
+
+#### Conclusion
+- GitHub and Jenkins are successfully connected.
+- Move to the next step in the next video: "Now let's move to our next step in the next video."
 
 
 
@@ -1170,15 +1269,454 @@ The video begins with an introduction, stating that the CI/CD deployment process
 
 
 
+
+### Detailed Summary of SonarQube Integration with Jenkins Video Transcript
+
+This summary captures every key detail from the transcript without omissions, organized into sections for easy revision. The video follows the previous GitHub integration video and focuses on integrating SonarQube with Jenkins for code analysis. The instructor references the introduction video for SonarQube's explanation (what it is and its use) and skips repeating it.
+
+#### Introduction
+- In the previous video, GitHub was integrated with Jenkins.
+- In this video, SonarQube is integrated with Jenkins.
+- Move directly to practical steps.
+
+#### Searching for SonarQube on Docker Hub
+- Open a browser and search for "Docker Hub".
+- In Docker Hub, search for "SonarQube" and press enter.
+- Open the first result for SonarQube.
+- Scroll down to find commands (since using Linux/Ubuntu, which is a type of Linux).
+
+#### Running Initial Setup Commands for SonarQube
+- Copy the commands one by one from the page.
+- Open a new terminal (WSL/Ubuntu).
+- Paste and run the first command.
+- Then the second command.
+- Then the third command (setting up SonarQube first).
+- Then the fourth command.
+- All four commands run successfully.
+
+#### Running the Docker Command for SonarQube
+- Go back to the Docker Hub page, in the "Demo" section.
+- Find "Try out SonarQube" link or section.
+- In the "Installing a local instance of SonarQube server from the Docker image", click "from Docker image".
+- Copy the Docker run command.
+- Open it in Notepad or similar, change the name from "sonarqube" to "sonarqube-did" (because running Docker-in-Docker).
+- SonarQube runs on port 9000.
+- Remove the dollar sign ($) from the command (not needed).
+- Run the modified command in the terminal.
+- It shows "unable to find image locally", so it installs from the SonarQube library.
+- It starts installing SonarQube (around 900 MB in size; ensure good internet speed).
+- Wait for installation; it takes time.
+- Last command runs, and an alphanumeric key appears, indicating successful download.
+- Verify: Run `docker ps`; shows Jenkins (from before) and now "sonarqube latest" also running.
+
+#### Accessing SonarQube in Browser
+- Get the IP address (copy from previous Jenkins setup, e.g., the WSL IP).
+- Open a browser tab, paste the IP, add colon and 9000 (e.g., `http://IP:9000`).
+- Press enter; SonarQube starts loading.
+- Wait till it fully starts (close extra tabs if needed).
+
+#### Installing Plugins in Jenkins
+- While SonarQube starts, go to Jenkins dashboard.
+- Go to "Manage Jenkins".
+- Search for "plugins".
+- Go to "Available Plugins".
+- Install two plugins: Search for "sonar scanner".
+- Select "SonarQube Scanner" and "SonarQube Sonar Quality Gates".
+- Click "Install" (success messages appear).
+
+#### Logging into SonarQube
+- Back to SonarQube browser tab (now ready).
+- Default login: Username "admin", password "admin".
+- Log in.
+- Update password: Old password "admin", set new password (choose anything; confirm).
+- Update later if prompted.
+
+#### Restarting Jenkins
+- Since plugins were installed in Jenkins, restart the Jenkins container.
+- Go to the previous WSL terminal where Jenkins is running (Jenkins is in "jenkins-did" container; SonarQube and others in another WSL).
+- Run: `docker restart jenkins`.
+- Refresh Jenkins browser tab; it's getting ready.
+
+#### Creating a Project in SonarQube
+- In SonarQube, click "Create a local project" (at the bottom).
+- Give project name (e.g., "multi lm ops lm ops ai ops" or as desired).
+- It automatically generates the project key.
+- Keep branch name as "main".
+- Next; select "Use the global setting" and create the project.
+
+#### Generating SonarQube Token
+- In SonarQube, go to top right account section, then "My Account".
+- Go to "Security".
+- Generate a token: Give token name (e.g., "sonarqube token").
+- Select token type: "Global Analysis Token".
+- Set expiration (e.g., 30 days).
+- Generate.
+- Copy the token (similar to GitHub token; allows Jenkins access to SonarQube, just as GitHub token allows access to GitHub).
+
+#### Adding SonarQube Credential in Jenkins
+- Go to Jenkins dashboard, "Manage Jenkins", then "Credentials".
+- Click "Global", "Add Credential".
+- Kind: "Secret text".
+- Paste the token in "Secret".
+- ID and Description: "sonarqube token" (copy-paste same).
+- Create.
+- Now, credentials list shows two: "GitHub token" and "Sonarqube token".
+
+#### Configuring SonarQube Server in Jenkins
+- Go to "Manage Jenkins", then "System".
+- Search for "SonarQube".
+- In "SonarQube servers", add environment variables.
+- Name: "sonarqube" (or any name).
+- Server URL: Not default `http://localhost:9000`; copy from SonarQube browser (IP:9000, e.g., `http://170.xxx.xxx.xxx:9000`).
+- Authentication token: Select "sonarqube token".
+- Apply and save.
+
+#### Configuring SonarQube Scanner Tool in Jenkins
+- Go to "Manage Jenkins", then "Tools".
+- Scroll to "SonarQube Scanner Installations".
+- Add SonarQube Scanner.
+- Name: "sonarqube" (or any).
+- Check "Install automatically" (if unticked, tick it).
+- Default version is selected; keep it.
+- No need to add installer.
+- Apply and save.
+
+#### Updating Jenkinsfile in VS Code
+- Go to VS Code, open "Jenkinsfile".
+- Uncomment the environment variables section.
+- Uncomment the "SonarQube analysis" stage (only these two for now).
+- In the file, change the credential ID to match your SonarQube token name (e.g., "sonarqube token").
+- In environment section:
+  - "sonar_projectKey": Go to SonarQube projects, copy the project name/key (e.g., "lm_ops"), paste it.
+  - "sonar_scanner_home": Ensure it's `tool 'sonarqube'` (or your tool name; copy from Manage Jenkins > Tools > SonarQube Scanner name).
+- Comment out the other three items (not needed now; only these two).
+- In "withSonarQubeEnv": Change to your SonarQube server name (from Manage Jenkins > System > SonarQube servers; e.g., "sonarqube").
+- Changes: Token name, environment name, SonarQube project name, SonarQube tool name (four things total).
+
+#### Pushing Changes to GitHub
+- In CMD terminal: `git add .`, `git commit -m "updates"`, `git push origin main`.
+
+#### Building the Pipeline and Troubleshooting
+- In Jenkins dashboard, open the pipeline job.
+- Build now; it fails (guess: Jenkins and SonarQube can't interact due to different networks).
+- Verify: In WSL terminal, clear screen, run `docker network ls`; shows three Docker networks.
+- Fix: Create a new Docker network and connect both containers.
+- Run: `docker network create dind-network` (generates alphanumeric key; success).
+- Verify: `docker network ls`; shows the new network.
+- Connect Jenkins: `docker network connect dind-network jenkins-did`.
+- Connect SonarQube: `docker network connect dind-network sonarqube-did`.
+- Now both on the same network; no error expected.
+- Build again: SonarQube analysis starts; success (green tick).
+
+#### Verifying SonarQube Analysis Results
+- In SonarQube, go to projects.
+- See maintainability, coverage, etc.; passed the check.
+- Open the project: Quality gate passed; code is good.
+- 192 lines of code analyzed.
+- Issues: Suggestions like "merge this run with instruction with consecutive ones", "sort these package names alphanumerically" (maintainability issues; minor for production-grade approach).
+- No major threats; just suggestions.
+- Not creating full production-grade project; just showing integration.
+- Risk measures: None.
+- Analyzed files: App directory (155 lines), custom Jenkins (14), Dockerfile (13), setup.py (10).
+- Security hotspots: 6 (3 in custom Jenkins, 3 in Dockerfile).
+- Maintainability issues: 2 (in custom Jenkins Dockerfile).
+- Duplications: 0 (good; no repeated functions/code).
+- Security issues: 0.
+- Reliability issues: 0.
+- This generates a report using SonarQube.
+
+#### Conclusion
+- SonarQube is now integrated with Jenkins (first GitHub, then SonarQube).
+- Done; move to next step: "Now let's move to our next step."
+
+
+
 8.102
+
+### Detailed Summary of Build and Push Stage Video Transcript
+
+This summary captures every key detail from the transcript without omissions, organized into sections for easy revision. The video focuses on creating the "build and push" stage in the CI/CD pipeline, where the project's Docker image is built and pushed to AWS ECR (Elastic Container Registry), a platform for storing Docker images (since Docker images require a Docker environment to store them).
+
+#### Introduction
+- In this video, the build and push stage is created: Build the Docker image for the project and push it to AWS ECR.
+- ECR is Elastic Container Registry, where Docker images can be stored (Docker images can't be stored in any environment; need a Docker-specific one like ECR).
+
+#### Installing Plugins in Jenkins
+- Open Jenkins, go to "Manage Jenkins".
+- Go to "Plugins" > "Available Plugins".
+- Search for "AWS".
+- Install two plugins: "AWS Credentials" and "AWS SDK" (select both and install).
+- Plugins get installed (success messages appear).
+
+#### Installing AWS CLI in Jenkins Container
+- Refer to the full documentation (in AWS setup section, under "AWS CLI on Jenkins container").
+- Open the WSL terminal where Jenkins is running (custom Jenkins one).
+- Run commands one by one:
+  - `docker exec -it jenkins-dind /bin/bash` (or similar; enters the Jenkins container; prompt changes to indicate inside container).
+  - `apt update` (updates all packages).
+  - `apt install -y curl unzip` (installs curl and unzip libraries).
+  - Curl command to download AWS CLI: Copy and paste the curl command (e.g., `curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"`).
+  - Unzip: `unzip awscliv2.zip`.
+  - Install: `./aws/install` (installs AWS CLI).
+- Verify: `aws --version` (shows something like "aws-cli/2.17.27 Python/3.11..." or similar; confirms successful installation).
+- Exit the container: `exit` (now out of the container).
+
+#### Restarting Jenkins
+- Since changes were made (installed AWS CLI and plugins), restart the Jenkins container.
+- In the WSL terminal: `docker restart jenkins-dind` (restarts the container).
+- Refresh the Jenkins browser tab; it takes time as it's restarting and starting up.
+
+#### Setting Up AWS Account and IAM User
+- Make an AWS account if not already (AWS offers one year free tier or similar; instructor assumes this is done as it's simple; focus is on CI/CD).
+- Log into AWS (instructor pauses video to secure/login to account; assumes user has logged in).
+- Search for "IAM" and open in a different tab (IAM console).
+- Go to "Users" on the left.
+- Create a new user: Name it (e.g., "multi_i_agent").
+- Next; attach policies directly.
+- Search for policies: "EC2 Container Registry".
+- Select "AmazonEC2ContainerRegistryFullAccess".
+- Next; create user (user created successfully).
+
+#### Creating Access Key for IAM User
+- Open the new user.
+- At the top, click "Create access key".
+- Select "Command Line Interface" (CLI).
+- Tick "I understand the above recommendations".
+- Next; create access key.
+- Get access key ID and secret access key (keep tab open).
+
+#### Adding AWS Credentials in Jenkins
+- In Jenkins dashboard, go to "Manage Jenkins" > "Credentials" > "Global" > "Add Credentials".
+- Kind: "AWS Credentials" (enabled by the installed plugin).
+- ID: Any (e.g., "aws_token"); copy-paste to description.
+- Access Key ID: Copy from AWS tab and paste.
+- Secret Access Key: Copy from AWS tab and paste.
+- Create.
+- Now, credentials list shows three: GitHub token, SonarQube token, AWS token.
+- Installed AWS CLI and AWS SDK; this is sufficient.
+
+#### Creating ECR Repository in AWS
+- In AWS, search for "ECR" (Elastic Container Registry).
+- Create a repository.
+- Name it (e.g., "my-repo").
+- Make it mutable (ensure mutable).
+- Encryption: Default.
+- Create (successfully created "my-repo").
+
+#### Updating Jenkinsfile in VS Code
+- Go to VS Code.
+- Minimize terminal if needed.
+- In Jenkinsfile, uncomment the "Build and Push to ECR" stage.
+- In environment variables section, uncomment the three related ones (AWS_REGION, ECR_REPO_NAME, IMAGE_TAG).
+- Changes:
+  - AWS_REGION: Your AWS region (e.g., "us-east-1"; visible in AWS URL top).
+  - ECR_REPO_NAME: Your repository name (e.g., "my-repo").
+  - IMAGE_TAG: "latest" (to push the latest image).
+- In the stage: Credential ID – Change to your AWS credential name (e.g., "aws_token"; copy from Jenkins credentials).
+- Rest of the code remains the same.
+
+#### Explanation of the Code in Jenkinsfile
+- The big code block: Logs into AWS account, checks region, builds Docker image using the project's Dockerfile.
+- Tags it as "latest" (want only the latest image).
+- Pushes to ECR.
+- Four important lines: Login, build, tag, push.
+- Instructor minimizes explanation to keep video short (previous courses had complaints about long code explanations; focus on practical maximum, explanation minimum).
+
+#### Pushing Changes to GitHub
+- In CMD terminal: `git add .`, `git commit -m "updates"`, `git push origin main`.
+
+#### Building the Pipeline and Verifying
+- In Jenkins dashboard, open the pipeline job (e.g., "multi_ai_agent").
+- Build now (e.g., fifth build).
+- Check console output: First GitHub integration, then SonarQube, then build and push starts.
+- Takes time (building and pushing; be patient, watch a movie or have popcorn).
+- Logs show: Logging into AWS (login succeeded), building "my-repo", pushing.
+- Success message; green tick at the top.
+
+#### Double-Checking Success
+- Green tick doesn't guarantee success; verify.
+- In AWS ECR, open "my-repo".
+- See one "latest" build image.
+- Details: Time, size (e.g., 305 MB), can copy image URI.
+- Confirms build and push stage was perfectly successful.
+
+#### Conclusion
+- Done; move to next step: "So yeah let's move to our next step then."
+
+
+
+
+
+
 
 
 8.103
 
 
+
+
+### Detailed Summary of Final CI/CD Deployment Video Transcript
+
+This summary captures every key detail from the transcript without omissions, organized into sections for easy revision. The video is the final one in the CI/CD deployment series, focusing on deploying the project from AWS ECR (Elastic Container Registry) to ECS Fargate.
+
+#### Introduction
+- This is the final video of the CI/CD deployment.
+- In this video, the project is deployed from ECR to ECS Fargate.
+
+#### Creating ECS Cluster
+- Go to AWS, search for "ECS" (Elastic Container Service), and open in a different tab.
+- On the left side, click "Clusters" and create one cluster.
+- Name the cluster (e.g., "multi AI agent cluster").
+- Select "AWS Fargate" (serverless deployment option; make sure to tick it).
+- Create it (no other changes needed; it takes some time).
+- Cluster creation is in progress; once done, "multi AI agent cluster" is created successfully.
+
+#### Creating Task Definition
+- In the left pane, go to "Task Definitions".
+- Create a new task definition.
+- Name it (e.g., "multi AI agent def definition").
+- Select "AWS Fargate".
+- Operating system: Linux only.
+- CPU: Select 2 CPUs (to avoid charges; cleanup will be done later).
+- Memory: 6 GB.
+- Task role: Keep default.
+- For the container:
+  - Name it (e.g., "lm_ops").
+  - Image URI: Go to ECR repo ("my-repo"), copy the image URI from the "images" section, paste it.
+  - Essential container: Yes (keep checked).
+- Port mappings:
+  - Default one remains.
+  - Add another: Custom TCP, port 8501 (for Streamlit).
+  - Add another: Custom TCP, port 9999 (for FastAPI).
+- Environment variables:
+  - Add key-value pairs from `.env` file in VS Code (not pushed to GitHub, so set separately).
+  - Example: Key "GROQ_API_KEY", value paste the API key.
+  - Add another: Key for Tavily API, value paste the API key.
+- Create the task definition (task definition created successfully).
+
+#### Creating Service
+- Go back to the cluster ("multi AI agent cluster").
+- In services, create one service.
+- Select task definition: "multi AI agent def definition" (automatically selects latest revision).
+- Service name: Any (keep default or change).
+- Keep other defaults (e.g., replica).
+- In networking section: Ensure public IP is turned on.
+- Create the service (takes time, 5-10 minutes).
+
+#### Configuring Security Groups
+- In AWS, search for "security groups" and open in a different tab.
+- Open the default security group.
+- Edit inbound rules.
+- First rule is default.
+- Add rule: Custom TCP, port range 8501, source anywhere IPv4 (0.0.0.0/0).
+- Add another: Custom TCP, port range 9999, source anywhere IPv4 (0.0.0.0/0).
+- Save rules.
+- Ensure this security group is aligned with the cluster (check in service; selected default during creation).
+
+#### Waiting for Deployment
+- Wait for service deployment (still in progress; takes time).
+
+#### Updating Jenkinsfile for Deployment Stage
+- While waiting, go to VS Code, open "Jenkinsfile".
+- Uncomment the last stage ("Deployment").
+- In environment variables, no specific uncomment mentioned, but aligns with previous.
+- Changes:
+  - Cluster name: Copy from AWS ("multi AI agent cluster"), replace in the file.
+  - Service name: Copy from AWS service (e.g., the ARN or name), replace in the file.
+- Push changes to GitHub: In CMD, `git add .`, `git commit -m "updates"`, `git push origin main`.
+
+#### Verifying Initial Deployment (Manual)
+- Service deployed successfully.
+- In ECS cluster > Services > Tasks: Open the task, copy its public IP.
+- Paste in browser with :8501 (e.g., `IP:8501`); Streamlit app runs.
+- This is manual deployment because the image URI was selected manually in task definition.
+- Changes (e.g., in UI like changing "devel" to "new" in frontend) won't apply here without rebuild.
+
+#### Demonstrating Manual vs. CI/CD
+- Example change: In UI (frontend), change a word to "new".
+- Refresh app: No change (manual deployment uses old image).
+- Even after pushing to GitHub (`git add .`, etc.): No change.
+- CI/CD forms a chain: Pipeline clones GitHub, SonarQube analysis, build/push, deploy—applies changes.
+
+#### Troubleshooting Access Denied Error
+- Build pipeline: Fails with "access denied" exception in deployment section (user-related).
+- Fix: In IAM user ("multi_i_agent"), add permission.
+- Attach policies: Search "ECS", select "AmazonECS_FullAccess" (for ECS deployment).
+- Next; add permission (done).
+- Re-build pipeline: No error now.
+
+#### Re-building Pipeline and Verifying Changes
+- Build again: Success (permission given).
+- In ECS cluster > Tasks: One task pending (latest), previous running.
+- Wait 2-4 minutes: Previous shuts down, new activates.
+- New public IP: Copy from new task, paste in browser with :8501.
+- Refresh: Changes applied (e.g., "new" visible; app works, e.g., query as financial advisor, select model, allow search, ask for stocks).
+
+#### Explanation of CI/CD Pipeline
+- Pipeline chain: Build pushes new image to ECR.
+- ECR: Old images remain, new one tagged "latest".
+- Jenkinsfile updates service to use "latest" image.
+- Each build: Clones repo, analyzes, builds/pushes new image, deploys (updates service with latest).
+
+#### Limitation: No Automatic Trigger
+- Concern: Pipeline should trigger on GitHub push, not manual "Build Now".
+- Not possible directly: AWS/GitHub online, Jenkins local (on PC).
+- Webhooks require both online (Jenkins needs to be online, e.g., in EC2 instance).
+- Alternative: Use Ngrok to expose local Jenkins IP temporarily for webhooks (not feasible).
+- Instructor will cover webhooks in a future project (full content promised).
+- This project uses manual build since Jenkins is local.
+
+#### Conclusion
+- Perfect Jenkins pipeline created.
+- End of project: "Now let's end this project. Have a good day and make sure you follow the cleanup process in the next video. Okay. Thank you. Bye bye."
+
+
+
+
+
+
+
 8.104
 
 
+### Detailed Summary of Cleanup Process Video Transcript
+
+This summary captures every key detail from the transcript without omissions, organized into sections for easy revision. The video explains the cleanup process after the CI/CD deployment project to avoid heavy charges from AWS resources and clear local Docker items to prevent errors in future projects.
+
+#### Deleting the ECS Cluster
+- First, go to your ECS clusters in AWS.
+- Open the cluster and click "Delete cluster".
+- Confirm by copying the cluster name, pasting it in the confirmation field, and deleting.
+- Reason: Prevents heavy charges if the cluster keeps running.
+- It automatically deletes associated services and other things.
+
+#### Deleting the ECR Repository
+- Go to your ECR repo in AWS.
+- Select it and delete the ECR repo.
+- Optional, but recommended to clean up.
+
+#### Optional: Deleting IAM User
+- You can delete the IAM user if desired.
+- It will not charge you, so it's up to you whether to keep or delete it.
+
+#### Clearing Docker Resources
+- Delete all Docker images, volumes, and builds to avoid errors in other projects (e.g., if project names or Docker image names are the same).
+- Run the command in Ubuntu (WSL): `docker system prune -a --f`.
+- Open Ubuntu terminal (search for "ubuntu" and open it).
+- This deletes cache objects, images, etc., and reclaims space (e.g., 1.765 GB reclaimed in the example).
+
+#### Note on IP Addresses
+- Many might wonder about getting different IPs each time on different tasks.
+- To fix for a single static IP: When creating the cluster or service, there is an option for load balancing—add it to get a fixed IP.
+- It's optional: Up to you if you want fixed or dynamic IP; not a big problem.
+
+#### Main Aim of the Project
+- The main aim was to teach how to do CI/CD deployment.
+
+#### Conclusion
+- This was all for the cleanup process—a simple note from the instructor.
+- Proceed to other projects and happy learning.
+- Thank you everyone.
 
 
 
@@ -1187,5 +1725,3 @@ The video begins with an introduction, stating that the CI/CD deployment process
 
 
 
-
-8.99
