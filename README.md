@@ -44,21 +44,19 @@ Address LLM limitations like outdated training data (e.g., cutoff at 2021) by in
 ## 🎥 Demo & Screenshots
 
 ### Live Demo
-👉 [Watch the Demo]()  
+👉 [Watch the Demo](https://github.com/user-attachments/assets/eef9eed1-241d-48c1-ae10-d888c8825fda)  
 *(Click the link to watch)*
 
 ---
 
-### Screenshots
+### 📸 Screenshots
 
 | Home Page | Query Example | Results Page |
 |-----------|---------------|--------------|
-| ![Home Page](![Xnip2025-08-24_06-20-55](https://github.com/user-attachments/assets/76fd9858-e764-453f-acdc-5a3335f0b90e)
-) | ![Query](![Xnip2025-08-24_06-26-30](https://github.com/user-attachments/assets/ac171c13-7fda-450a-a7ce-64647eaa6e25)
-) | ![Results]![Xnip2025-08-24_06-26-53](https://github.com/user-attachments/assets/1cd2f64c-6245-42ea-963e-fc29000ee6ac)
-() |
+| ![Home Page](https://github.com/user-attachments/assets/76fd9858-e764-453f-acdc-5a3335f0b90e) | ![Query Example](https://github.com/user-attachments/assets/ac171c13-7fda-450a-a7ce-64647eaa6e25) | ![Results Page](https://github.com/user-attachments/assets/1cd2f64c-6245-42ea-963e-fc29000ee6ac) |
 
 ---
+
 
 ## Detailed Concepts
 - **Tavily + LLM Integration**: Ensures real-time, accurate responses by combining historical LLM data with live search.
