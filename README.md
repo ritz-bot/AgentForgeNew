@@ -53,7 +53,10 @@ Address LLM limitations like outdated training data (e.g., cutoff at 2021) by in
 
 | Home Page | Query Example | Results Page |
 |-----------|---------------|--------------|
-| ![Home Page]() | ![Query]() | ![Results]() |
+| ![Home Page](![Xnip2025-08-24_06-20-55](https://github.com/user-attachments/assets/76fd9858-e764-453f-acdc-5a3335f0b90e)
+) | ![Query](![Xnip2025-08-24_06-26-30](https://github.com/user-attachments/assets/ac171c13-7fda-450a-a7ce-64647eaa6e25)
+) | ![Results]![Xnip2025-08-24_06-26-53](https://github.com/user-attachments/assets/1cd2f64c-6245-42ea-963e-fc29000ee6ac)
+() |
 
 ---
 
