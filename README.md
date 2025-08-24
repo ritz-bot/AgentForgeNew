@@ -41,6 +41,21 @@ Address LLM limitations like outdated training data (e.g., cutoff at 2021) by in
 10. **AWS (ECR + ECS Fargate)** – Cloud deployment with scalability.
 
 ---
+## 🎥 Demo & Screenshots
+
+### Live Demo
+👉 [Watch the Demo]()  
+*(Click the link to watch)*
+
+---
+
+### Screenshots
+
+| Home Page | Query Example | Results Page |
+|-----------|---------------|--------------|
+| ![Home Page]() | ![Query]() | ![Results]() |
+
+---
 
 ## Detailed Concepts
 - **Tavily + LLM Integration**: Ensures real-time, accurate responses by combining historical LLM data with live search.
