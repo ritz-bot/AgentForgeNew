@@ -55,21 +55,21 @@ pipeline{
             }
         }
 
-    //     stage('Deploy to ECS Fargate') {
-    // steps {
-    //     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-token']]) {
-    //         script {
-    //             sh """
-    //             aws ecs update-service \
-    //               --cluster multi-ai-agent-cluster-new \
-    //               --service multi-ai-agent-new-def-service-cbzsqe21  \
-    //               --force-new-deployment \
-    //               --region ${AWS_REGION}
-    //             """
-    //             }
-    //         }
-    //     }
-    //  }
+        stage('Deploy to ECS Fargate') {
+    steps {
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-token']]) {
+            script {
+                sh """
+                aws ecs update-service \
+                  --cluster multi-ai-agent-final\
+                  --service multi-ai-agent-new-final-service-41ipjj9j   \
+                  --force-new-deployment \
+                  --region ${AWS_REGION}
+                """
+                }
+            }
+        }
+     }
         
     }
 }
