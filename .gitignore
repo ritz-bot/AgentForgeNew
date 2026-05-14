@@ -4,3 +4,13 @@ venv/
 MULTI_AI_AGENT.egg-info/
 AgentForge.egg-info/
 projectint.txt/
+
+cat >> .gitignore << 'EOF'
+
+__pycache__/
+*.pyc
+logs/
+.env
+.venv/
+venv/
+EOF

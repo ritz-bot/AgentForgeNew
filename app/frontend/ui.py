@@ -1,51 +1,55 @@
-import streamlit as st
 import requests
+import streamlit as st
 
-from app.config.settings import settings
 from app.common.logger import get_logger
-from app.common.custom_exception import CustomException
+from app.config.settings import settings
 
 logger = get_logger(__name__)
 
-st.set_page_config(page_title="Multi AI Agent" , layout="centered")
-st.title("Multi AI Agent using Groq and Tavily New")
+st.set_page_config(page_title="Multi AI Agent", layout="centered")
+st.title("Multi AI Agent using Groq and Tavily")
 
-system_prompt = st.text_area("Define your AI Agent: " , height=70)
-selected_model = st.selectbox("Select your AI model: ", settings.ALLOWED_MODEL_NAMES)
-
+system_prompt = st.text_area("Define your AI Agent:", height=70)
+selected_model = st.selectbox("Select your AI model:", settings.ALLOWED_MODEL_NAMES)
 allow_web_search = st.checkbox("Allow web search")
+user_query = st.text_area("Enter your query:", height=150)
 
-user_query = st.text_area("Enter your query : " , height=150)
 
-API_URL = "http://127.0.0.1:9999/chat"
+def _extract_error_message(response: requests.Response) -> str:
+    try:
+        payload = response.json()
+        return payload.get("detail", "Backend returned an unknown error.")
+    except ValueError:
+        return response.text or "Backend returned an unknown error."
+
 
 if st.button("Ask Agent") and user_query.strip():
-
     payload = {
-        "model_name" : selected_model,
-        "system_prompt" : system_prompt,
-        "messages" : [user_query],
-        "allow_search" : allow_web_search
+        "model_name": selected_model,
+        "system_prompt": system_prompt,
+        "messages": [user_query],
+        "allow_search": allow_web_search,
     }
 
     try:
         logger.info("Sending request to backend")
+        response = requests.post(
+            settings.BACKEND_URL,
+            json=payload,
+            timeout=settings.BACKEND_TIMEOUT_SECONDS,
+        )
 
-        response = requests.post(API_URL , json=payload)
-
-        if response.status_code==200:
-            agent_response = response.json().get("response","")
-            logger.info("Sucesfully recived response from backend")
+        if response.status_code == 200:
+            agent_response = response.json().get("response", "")
+            logger.info("Successfully received response from backend")
 
             st.subheader("Agent Response")
-            st.markdown(agent_response.replace("\n","<br>"), unsafe_allow_html=True)
-
+            st.markdown(agent_response.replace("\n", "<br>"), unsafe_allow_html=True)
         else:
-            logger.error("Backend error")
-            st.error("Error with backend")
-    
-    except Exception as e:
-        logger.error("Error occured while sending request to backend")
-        st.error(str(CustomException("Failed to communicate to backend")))
+            error_message = _extract_error_message(response)
+            logger.error(f"Backend error: {error_message}")
+            st.error(error_message)
 
-        
+    except requests.RequestException as exc:
+        logger.error(f"Error occurred while sending request to backend: {exc}")
+        st.error(f"Failed to communicate with backend: {exc}")
