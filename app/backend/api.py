@@ -1,19 +1,34 @@
 import logging
+import os
 import traceback
 from typing import List
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app.common.logger import get_logger
 from app.config.settings import settings
 from app.core.ai_agent import get_Response_from_ai_agents
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.DEBUG if os.getenv("DEBUG", "").lower() == "true" else logging.INFO
+)
 
 logger = get_logger(__name__)
 
-app = FastAPI(title="MULTI AI AGENT")
+app = FastAPI(title="MULTI AI AGENT", docs_url=None, redoc_url=None)
+
+_allowed_origins = os.getenv(
+    "ALLOWED_ORIGINS", "http://localhost:8501"
+).split(",")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_allowed_origins,
+    allow_credentials=True,
+    allow_methods=["POST"],
+    allow_headers=["*"],
+)
 
 
 class RequestState(BaseModel):
@@ -49,4 +64,7 @@ def chat_endpoint(request: RequestState):
     except Exception as exc:
         logger.error(f"Error during response generation: {exc}")
         logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred. Please try again later.",
+        )

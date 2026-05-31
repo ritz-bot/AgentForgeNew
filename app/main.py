@@ -147,6 +147,7 @@ if __name__ == "__main__":
  """
 
 
+import os
 import subprocess
 import threading
 import time
@@ -158,21 +159,25 @@ import sys
 logger = get_logger(__name__)
 load_dotenv()
 
+_DEBUG = os.getenv("DEBUG", "").lower() == "true"
+
 backend_process = None
 
 def run_backend():
     global backend_process
     try:
         logger.info("Starting backend service..")
-        process = subprocess.Popen(
-            [
+        uvicorn_cmd = [
                 "uvicorn",
                 "app.backend.api:app",
                 "--host", "127.0.0.1",
                 "--port", "9999",
-                "--reload",              # reload helps debugging
-                "--log-level", "debug"   # show detailed logs
-            ],
+        ]
+        if _DEBUG:
+            uvicorn_cmd += ["--reload", "--log-level", "debug"]
+
+        process = subprocess.Popen(
+            uvicorn_cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True

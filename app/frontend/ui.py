@@ -44,7 +44,7 @@ if st.button("Ask Agent") and user_query.strip():
             logger.info("Successfully received response from backend")
 
             st.subheader("Agent Response")
-            st.markdown(agent_response.replace("\n", "<br>"), unsafe_allow_html=True)
+            st.markdown(agent_response)
         else:
             error_message = _extract_error_message(response)
             logger.error(f"Backend error: {error_message}")
